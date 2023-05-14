@@ -80,7 +80,7 @@ async def freetext_to_crossref_items(search_term: str):
     try:
         response = requests.get(
             f"https://api.crossref.org/works?rows=10&sort=relevance&query={quote(search_term)}", 
-            headers={"User-Agent": "ChatGPT Plugin Bibliography/1.0 (+https://bibliography.pythonanywhere.com/static/legal.html; mailto:bibliography_generator@proton.me)"
+            headers={"User-Agent": "ChatGPT Plugin Bibliography/1.0 (+https://bibliography-1-f6795465.deta.app/static/legal.html; mailto:bibliography_generator@proton.me)"
             }
         )
         
@@ -231,4 +231,4 @@ async def openapi_spec():
 app.openapi = openapi_spec
 
 if __name__ == '__main__':
-    os.system("uvicorn main:app --host http://bibliography.pythonanywhere.com --port 8080 --reload")
+    os.system("uvicorn main:app --host https://bibliography-1-f6795465.deta.app --port 8080 --reload")

@@ -2,17 +2,17 @@
     "schema_version": "v1",
     "name_for_human": "Bibliography Crossref",
     "name_for_model": "bibliography_crossref",
-    "description_for_human": "Search publications and generate bibliographies using Crossref",
-    "description_for_model": "A plugin to assist with bibliographies. Search scientific publications, generate bibliographies, output DOIs in e.g. tabular format and save actual existing publications to Zotero.",
+    "description_for_human": "Search publications and generate bibtex bibliographies using Crossref, DOIs and Zotero",
+    "description_for_model": "A plugin to suggest multiple research prompts and generate bibtex bibliographies for each in tabular output. Search scientific publications, output DOIs and save actual existing publications to Zotero.",
     "auth": {
       "type": "none"
     },
     "api": {
       "type": "openapi",
-      "url": "http://bibliography.pythonanywhere.com/openapi.yaml",
+      "url": "https://bibliography-1-f6795465.deta.app/openapi.yaml",
       "is_user_authenticated": false
     },
-    "logo_url": "http://bibliography.pythonanywhere.com/static/logo.jpg",
+    "logo_url": "https://bibliography-1-f6795465.deta.app/static/logo.jpg",
     "contact_email": "bibliography_generator@proton.me",
-    "legal_info_url": "http://bibliography.pythonanywhere.com/static/legal.html"
+    "legal_info_url": "https://bibliography-1-f6795465.deta.app/static/legal.html"
   }
