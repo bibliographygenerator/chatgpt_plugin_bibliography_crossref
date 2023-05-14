@@ -1,0 +1,7 @@
+quart
+quart-cors
+fastapi
+bibtexparser
+pyzotero
+uvicorn
+httpx
