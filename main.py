@@ -18,7 +18,7 @@ from urllib.parse import quote
 
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(debug=False)
+app = FastAPI(debug=True)
 
 app.add_middleware(
     CORSMiddleware,
@@ -84,18 +84,16 @@ async def freetext_to_crossref_items(search_term: str):
             }
         )
         
-        return response.json()
-        
         response_json = sanitize(response.json())
         
         if response.status_code != 200 or not response_json['message']['items']:
-            return ['fetching content failed']
+            crossref_items.append(f"Error: Fetching content failed: {sanitize(response_json)}")
         
         crossref_items = [ response_json['message']['items'] ] if response.status_code == 200 else [] 
         return crossref_items
     except Exception as e:
-        print(e)
-        return [f'Error contacting Crossref: {e}']
+        crossref_items.append(f'Error contacting Crossref: {str(e)}')
+        return crossref_items
 
 @app.get("/crossref_items_to_dois/")
 async def crossref_items_to_dois(search_term: str):
@@ -109,7 +107,6 @@ async def crossref_items_to_dois(search_term: str):
             status_code=199
         )
 
-@app.get("/crossref_items_to_bibtex/")
 async def crossref_items_to_bibtex(crossref_items):
     """
     Return a bibtex string of metadata for a given DOI.
@@ -124,11 +121,13 @@ async def crossref_items_to_bibtex(crossref_items):
         bibtex_entries = []
 
         for item in crossref_items:
+            bibtex_entries.append(item)
             try:
                 bibtex_entries.append(requests.get(
-                    f"http://api.crossref.org/works/{item.get('DOI')}/transform/application/x-bibtex")
+                    f"https://api.crossref.org/works/{item.get('DOI')}/transform/application/x-bibtex")
                 ).json()
             except Exception as e:
+                bibtex_entries.append(f"Error getting bibtex for DOI: {item=}")
                 try:
                     bibtex_item = {
                         'ENTRYTYPE': item.get('type', ''),
@@ -152,30 +151,25 @@ async def crossref_items_to_bibtex(crossref_items):
         
                     bibtex_entries.append(bibtex_str)
                 except Exception as e:
-                    print(f"Failed to convert item: {e}")
+                    bibtex_entries.append(f"Failed to convert item: {e}")
 
         return bibtex_entries
 
     except Exception as e:
-        print(f"Conversion of crossref items to BibTex failed, Error: {e}")
-        return crossref_items
+        bibtex_entries.append(f"Conversion of crossref items to BibTex failed, Error: {e}, {crossref_items=}")
+        return bibtex_entries
 
 
 @app.get("/freetext_to_bibtex/")
 async def freetext_to_bibtex(search_term: str):
     try:        
         crossref_items = await freetext_to_crossref_items(search_term)
-        
-        if not crossref_items:
-            warnings.warn(f"No items found for {search_term}")
 
         bibtex_list = await crossref_items_to_bibtex(crossref_items)
         
-        if not bibtex_list:
-            warnings.warn(f"fetching result failed for input {search_term=}, {crossref_items=}")
-        return JSONResponse(content={'bibtex': bibtex_list}, status_code=200)
+        return JSONResponse(content=json.dumps(sanitize(bibtex_list)), status_code=200)
     except Exception as e:
-        return {'error': f"Error fetching result for input '{search_term}': {str(e)}"}
+        return JSONResponse(content={'error': f"Error fetching result for input '{search_term}': {str(e)}; {bibtex_list}; {crossref_items}"}, status_code=500)
         
 
 @app.post("/add_bibtex_to_zotero/")
@@ -231,4 +225,4 @@ async def openapi_spec():
 app.openapi = openapi_spec
 
 if __name__ == '__main__':
-    os.system("uvicorn main:app --host https://bibliography-1-f6795465.deta.app --port 8080 --reload")
+    os.system("uvicorn main:app --host 0.0.0.0 --port 5003 --reload")
