@@ -3,7 +3,7 @@ from fastapi import FastAPI, Request, HTTPException
 import httpx
 from fastapi.openapi.utils import get_openapi
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, Response, JSONResponse
+from fastapi.responses import FileResponse, Response, JSONResponse, RedirectResponse
 import requests
 from bibtexparser.bwriter import BibTexWriter
 from bibtexparser.bibdatabase import BibDatabase
@@ -22,7 +22,7 @@ app = FastAPI(debug=False)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["localhost", "0.0.0.0", "chat.openai.com", "https://bibliography-1-f6795465.deta.app/"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
     expose_headers=["Content-Disposition"]
@@ -37,6 +37,10 @@ async def add_cors_header(request: Request, call_next):
     return response
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/")
+def read_root():
+    return RedirectResponse(url="https://github.com/bibliographygenerator/chatgpt_plugin_bibliography_crossref")
 
 @app.route("/.well-known/ai-plugin.json", methods=["GET", "OPTIONS"])
 async def options_handler(request: Request):
