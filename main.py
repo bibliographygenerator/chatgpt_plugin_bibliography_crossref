@@ -1,7 +1,6 @@
 import json
 from fastapi import FastAPI, Request, HTTPException
 import httpx
-import warnings
 from fastapi.openapi.utils import get_openapi
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, Response, JSONResponse
@@ -18,11 +17,11 @@ from urllib.parse import quote
 
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(debug=True)
+app = FastAPI(debug=False)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["localhost", "0.0.0.0", "chat.openai.com", "https://bibliography-1-f6795465.deta.app/"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -79,7 +78,7 @@ async def freetext_to_crossref_items(search_term: str):
     """
     try:
         response = requests.get(
-            f"https://api.crossref.org/works?rows=10&sort=relevance&query={quote(search_term)}", 
+            f"https://api.crossref.org/works?rows=3&sort=relevance&query={quote(search_term)}&select=title,subtitle,author,publisher,type,DOI,ISBN,URL,ISSN,short-container-title,created,score,prefix", 
             headers={"User-Agent": "ChatGPT Plugin Bibliography/1.0 (+https://bibliography-1-f6795465.deta.app/static/legal.html; mailto:bibliography_generator@proton.me)"
             }
         )
@@ -87,7 +86,7 @@ async def freetext_to_crossref_items(search_term: str):
         response_json = sanitize(response.json())
         
         if response.status_code != 200 or not response_json['message']['items']:
-            crossref_items.append(f"Error: Fetching content failed: {sanitize(response_json)}")
+            crossref_items.append(f"Warning: Fetching content failed: {sanitize(response_json)}")
         
         crossref_items = [ response_json['message']['items'] ] if response.status_code == 200 else [] 
         return crossref_items
@@ -103,7 +102,7 @@ async def crossref_items_to_dois(search_term: str):
     except Exception as e:
         print(e)
         return JSONResponse(
-            content={'error': 'conversion to DOIs failed', 'crossref_items': crossref_items}, 
+            content={'Warning': 'conversion to DOIs failed', 'crossref_items': crossref_items}, 
             status_code=199
         )
 
@@ -127,7 +126,7 @@ async def crossref_items_to_bibtex(crossref_items):
                     f"https://api.crossref.org/works/{item.get('DOI')}/transform/application/x-bibtex")
                 ).json()
             except Exception as e:
-                bibtex_entries.append(f"Error getting bibtex for DOI: {item=}")
+                bibtex_entries.append(f"Warning: Error getting bibtex for DOI: {item=}")
                 try:
                     bibtex_item = {
                         'ENTRYTYPE': item.get('type', ''),
@@ -151,12 +150,12 @@ async def crossref_items_to_bibtex(crossref_items):
         
                     bibtex_entries.append(bibtex_str)
                 except Exception as e:
-                    bibtex_entries.append(f"Failed to convert item: {e}")
+                    bibtex_entries.append(f"Failed to convert {item=}: {e}")
 
         return bibtex_entries
 
     except Exception as e:
-        bibtex_entries.append(f"Conversion of crossref items to BibTex failed, Error: {e}, {crossref_items=}")
+        bibtex_entries.append(f"Conversion of crossref items to BibTex failed, Warning: {e}, {crossref_items=}")
         return bibtex_entries
 
 
@@ -169,7 +168,7 @@ async def freetext_to_bibtex(search_term: str):
         
         return JSONResponse(content=json.dumps(sanitize(bibtex_list)), status_code=200)
     except Exception as e:
-        return JSONResponse(content={'error': f"Error fetching result for input '{search_term}': {str(e)}; {bibtex_list}; {crossref_items}"}, status_code=500)
+        return JSONResponse(content={'warning': f"Error fetching result for input '{search_term}': {str(e)}; {bibtex_list}; {crossref_items}"}, status_code=500)
         
 
 @app.post("/add_bibtex_to_zotero/")
@@ -192,7 +191,7 @@ async def add_bibtex_to_zotero(request: Request):
         bibtex = data["bibtex"]
         user = data["user"]
     except KeyError as e:
-        warnings.warn(f"Missing required parameter: {e.args[0]}")
+        return {'message': f"Please add the missing required parameter: {e.args[0]}"}
 
     zot = zotero.Zotero(library_id, user, api_key)
 
@@ -200,12 +199,12 @@ async def add_bibtex_to_zotero(request: Request):
         db = bibtexparser.loads(bibtex)
         bibtex_dict = db.entries_dict
     except Exception as e:
-        warnings.warn(f"Error parsing BibTeX data: {str(e)}")
+        return {'message': f"Error parsing BibTeX data: {str(e)}"}
 
     try:
         zot.add_items(bibtex_dict, collection=collection_id)
     except Exception as e:
-        warnings.warn(f"Error adding items to Zotero: {str(e)}")
+        return {'message': f"Error adding items to Zotero: {str(e)}"}
 
     return {"message": "BibTex added to Zotero collection successfully!"}
 

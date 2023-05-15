@@ -3,7 +3,7 @@
     "name_for_human": "Bibliography Crossref",
     "name_for_model": "bibliography_crossref",
     "description_for_human": "Search publications and generate bibtex bibliographies using Crossref, DOIs and Zotero",
-    "description_for_model": "A plugin to suggest multiple research prompts and generate bibtex bibliographies for each in tabular output. Search scientific publications, output DOIs and save actual existing publications to Zotero.",
+    "description_for_model": "A plugin to suggest multiple research prompts and generate the top 3 bibtex bibliographies for each in Markdown tabular output. Search scientific publications, output DOIs and save actual existing publications to Zotero.",
     "auth": {
       "type": "none"
     },
