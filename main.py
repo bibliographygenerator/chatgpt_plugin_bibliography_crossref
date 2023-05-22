@@ -219,7 +219,7 @@ async def openapi_spec():
     openapi_schema = get_openapi(
         title="Bibliography Generator",
         version="1.0",
-        description="Democratizing access to scientific research with natural language using Crossref and Zotero",
+        description="Democratizing access to scientific research with natural language using Crossref and Zotero.",
         routes=app.routes,
     )
     app.openapi_schema = openapi_schema
@@ -228,4 +228,4 @@ async def openapi_spec():
 app.openapi = openapi_spec
 
 if __name__ == '__main__':
-    os.system("uvicorn main:app --host 0.0.0.0 --port 5003 --reload")
+    os.system("uvicorn main:app --host 0.0.0.0 --port 8080 --reload")

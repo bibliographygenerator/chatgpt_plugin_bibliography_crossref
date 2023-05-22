@@ -1,6 +1,7 @@
-# ChatGPT Plugin Bibliography Generator
+# ChatGPT Plugin: Bibliography Generator
 
 #### Simplifying Scientific Research with AI and Crossref
+
 Ever wished your AI could talk science without making stuff up? Now it can! We're using the power of GPT-4 Plus and a tool called Crossref to make sure your AI speaks real science, not science fiction.
 
 With our tool, GPT-4 Plus doesn't just guess or make up scientific references - it pulls them from Crossref, a massive database of real scientific articles and papers. So, when you ask about a scientific topic, you get accurate, reliable information, complete with real DOI numbers.
@@ -30,7 +31,7 @@ We're not just making research easier; we're democratizing knowledge. Join us in
 
 Now, you can ask ChatGPT to find publications for a topic, suggest DOIs or save publications to your Zotero project.
 
-You can even try the Bibliography Generator Plugin API without access to ChatGPT here:
+You can try the Bibliography Generator Plugin API without access to ChatGPT here:
 ```
 https://bibliography-1-f6795465.deta.app/freetext_to_bibtex?search_term={<enter_your_search_query>}
 ```
@@ -42,4 +43,4 @@ The OpenAPI manifest YAML can be accessed here:
 [Legal notes](https://bibliography-1-f6795465.deta.app/static/legal.html)
 [Privacy notes](https://bibliography-1-f6795465.deta.app/static/privacy.html)
 
-For further information, contact [bibliography_generator@proton.me](mailto:bibliography_generator@proton.me)
+For further information, contact [bibliography_generator@proton.me](mailto:bibliography_generator@proton.me).
